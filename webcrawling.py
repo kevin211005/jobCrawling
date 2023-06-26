@@ -30,7 +30,7 @@ class webcrawling:
         passwordElement = self.driver.find_element(By.ID, 'password')
         passwordElement.send_keys(password)
         passwordElement.send_keys(Keys.RETURN)  
-    def getJobs(self, timePeriod, keyword, location, workYrs,test = False):
+    def getJobs(self, timePeriod, keyword, location, workYrs,test = False, testPage = 1):
         keyword = "&keywords=" + keyword.lower().replace(" ", "%20") 
         keyword = keyword + "&location=" + location.lower().replace(" ", "%20").replace(",", "%2C").capitalize() if len(location) != 0 else keyword
         period = PeriodTable[timePeriod]
@@ -53,7 +53,7 @@ class webcrawling:
             JobsInfo = []
             ###test mode only check 3 pages 
             if test == True:
-                lastPage = 3
+                lastPage = 2 + testPage
             for index in range(2, lastPage + 1):
                 singleJobInfo = self.getSinglePageJobPost()
                 JobsInfo += singleJobInfo
