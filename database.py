@@ -28,7 +28,10 @@ class databaseHandler:
         #     print("Remove description error")
         dfCombined = pd.concat([self.database, newDataFrame]).drop_duplicates(subset="id")
         self.database = dfCombined
-        print(f"Congrat you find {len(self.database) - self.preLen} new opportunities")
+        if len(self.database) == self.preLen:
+            print("Oops, No new opportunities found")
+        else:
+            print(f"Congrat you find {len(self.database) - self.preLen} new opportunities")
         try:
             self.database = self.database.sort_values(['date', 'jobTitle'], ascending=False)
             self.database.to_csv(f"data_{self.workYears}.csv", index=False)

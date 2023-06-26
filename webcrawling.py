@@ -40,25 +40,21 @@ class webcrawling:
         barClassName = "artdeco-pagination__pages.artdeco-pagination__pages--number"
         try:
             changePageBar = self.driver.find_element(By.CLASS_NAME, barClassName)
+             # Get number of pages 
             buttons = changePageBar.find_elements(By.TAG_NAME, 'button')
-            # Get number of pages 
-            lastPage = 0 
-            attempts = 0 
-            while attempts <= 2:
-                try:
-                    lastPage = int(buttons[-1].text)
-                    break 
-                except:
-                    attempts += 1 
-            JobsInfo = []
+            lastPage = int(buttons[-1].text)
+        except:
+            lastPage = 3 
+        JobsInfo = []
             ###test mode only check 3 pages 
-            if test == True:
-                lastPage = 2 + testPage
-            for index in range(2, lastPage + 1):
-                singleJobInfo = self.getSinglePageJobPost()
-                JobsInfo += singleJobInfo
-                if len(singleJobInfo) < 20:
-                    print(f"Error occur on page {index - 1}")
+        if test == True:
+            lastPage = 2 + testPage
+        for index in range(2, lastPage + 1):
+            singleJobInfo = self.getSinglePageJobPost()
+            JobsInfo += singleJobInfo
+            if len(singleJobInfo) < 20:
+                print(f"Error occur on page {index - 1}: Only find {len(singleJobInfo)} jobs in this page")
+            try:
                 cssSelector = f'li[data-test-pagination-page-btn="{index}"]'
                 button = changePageBar.find_elements(By.CSS_SELECTOR, cssSelector)
                 if len(button) == 1:
@@ -72,19 +68,18 @@ class webcrawling:
                         button.click()
                         break 
                     except:
-                        attempts += 1 
-            print("Total Job get from webcrawling:", len(JobsInfo))
-            df = pd.DataFrame(JobsInfo)
-            df_unique = df.drop_duplicates(subset=['id'])
-            data = df_unique.to_dict('records')
-            print(f"Find {len(data)} unique jobs")
-            jobSelected, citizenJobs = self.filterData(data, workYrs)
-            print(f"find {len(jobSelected)} jobs for you and {len(citizenJobs)} jobs for us citizen only")
-            return jobSelected
-        except Exception as e:
-            print("Get page number error")
-            print(e)
-            return None 
+                        attempts += 1
+            except:
+                print(f"Error occur on page {index - 1}: cannot find next page button")
+                break 
+        print("Total Job get from webcrawling:", len(JobsInfo))
+        df = pd.DataFrame(JobsInfo)
+        df_unique = df.drop_duplicates(subset=['id'])
+        data = df_unique.to_dict('records')
+        print(f"Find {len(data)} unique jobs")
+        jobSelected, citizenJobs = self.filterData(data, workYrs)
+        print(f"find {len(jobSelected)} jobs for you and {len(citizenJobs)} jobs for us citizen only")
+        return jobSelected
     def findJobList(self, className):
         joblist = None
         try:

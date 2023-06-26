@@ -63,7 +63,8 @@ if __name__ == "__main__":
                     print("Please input valid years of experience")
         database = databaseHandler(workyoe)
         SelectedjobList = webCrawling.getJobs(datePosted, jobName, location, workyoe, test = True)
-        database.addNewData(SelectedjobList)
+        if SelectedjobList != None:
+            database.addNewData(SelectedjobList)
         stop = input("Stop? Enter s to stop, n to start new search else continue with orignal para: ")
         if len(stop) != 0 and stop.strip().lower()[0] == "s":
             quite = True 
