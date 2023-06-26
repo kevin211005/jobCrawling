@@ -16,7 +16,7 @@ from datetime import date
 import re 
 linkedInLogInUrl = "https://www.linkedin.com/uas/login"
 PeriodTable = {"0": "", "1":"&f_TPR=r2592000", "2":"&f_TPR=r604800", "3":"&f_TPR=r86400"}
-JobSearchUrl = "https://www.linkedin.com/jobs/search/?currentJobId=3633032429&distance=25&geoId=103644278"
+JobSearchUrl = "https://www.linkedin.com/jobs/search/?"
 class webcrawling:
     def __init__(self, max_wait_time = 5):
         self.driver = webdriver.Chrome()
@@ -30,8 +30,9 @@ class webcrawling:
         passwordElement = self.driver.find_element(By.ID, 'password')
         passwordElement.send_keys(password)
         passwordElement.send_keys(Keys.RETURN)  
-    def getJobs(self, timePeriod, keyword, workYrs,test = False):
-        keyword = "&keywords=" + keyword.lower().replace(" ", "%20")
+    def getJobs(self, timePeriod, keyword, location, workYrs,test = False):
+        keyword = "&keywords=" + keyword.lower().replace(" ", "%20") 
+        keyword = keyword + "&location=" + location.lower().replace(" ", "%20").replace(",", "%2C").capitalize() if len(location) != 0 else keyword
         period = PeriodTable[timePeriod]
         jobPostURL = JobSearchUrl + period + keyword
         self.driver.get(jobPostURL)
