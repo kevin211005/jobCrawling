@@ -25,3 +25,5 @@ WORK_YOE="0"
 python main.py 
 ```
 ## Demo Video 
+https://github.com/kevin211005/jobCrawling/assets/86145579/43f21e1d-da00-4d7a-9241-8a00e0054ee6
+
