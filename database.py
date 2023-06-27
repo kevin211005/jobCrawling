@@ -17,7 +17,6 @@ class databaseHandler:
             print("Load previous data success")
         except Exception as e:
             print("No previous search records")
-            print(e)
             database = pd.DataFrame() 
         return database
     def addNewData(self, data): 

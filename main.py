@@ -24,7 +24,7 @@ if __name__ == "__main__":
         workyoe = int(os.getenv("WORK_YOE"))
     except Exception as e:
         workyoe = None
-        print(e)
+        print("Manually input search criteria")
     location = os.getenv("JOB_LOCATION")
     ###login Section 
     while success == False:    
