@@ -10,7 +10,7 @@ pip install pandas
 #install selenium 
 pip install selenium
 ```
-## Create default search parameters(Optional)
+## (Optional) Create default search parameters
 ```bash
 ## Create .env file
 touch .env 
