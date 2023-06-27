@@ -12,7 +12,8 @@ pip install selenium
 ```
 ## Create default search parameters(Optional)
 ```bash
-touch .env file 
+## Create .env file
+touch .env 
 ##Inside your .env file type
 LINKEDIN_USERNAME="Your LinkedIn account"
 LINKEDIN_PASSWORD="Your LinkedIn account"
