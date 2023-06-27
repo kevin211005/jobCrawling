@@ -1,7 +1,7 @@
 # LinkedIn Job Crawling 
 
 ## Goal
-Developed the customized job search filter web crawling for LinkedIn job posts
+Developed the customized job search filter for LinkedIn job posts
 
 ## Installation
 ```bash
