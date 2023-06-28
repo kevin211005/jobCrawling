@@ -20,12 +20,12 @@ if __name__ == "__main__":
     password = os.getenv("LINKEDIN_PASSWORD")
     datePosted = os.getenv("DATE_POSTED")
     jobName = os.getenv("JOB_NAME")
+    location = os.getenv("JOB_LOCATION")
     try:
         workyoe = int(os.getenv("WORK_YOE"))
     except Exception as e:
         workyoe = None
         print("Manually input search criteria")
-    location = os.getenv("JOB_LOCATION")
     ###login Section 
     while success == False:    
         if userName == None or password == None:

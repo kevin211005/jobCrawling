@@ -92,7 +92,7 @@ class webcrawling:
         errorCount = 0 
         className = "ember-view.jobs-search-results__list-item.occludable-update.p0.relative.scaffold-layout__list-item"
         titleClass = "t-24.t-bold.jobs-unified-top-card__job-title"
-        companyClass = "ember-view.t-black.t-normal"
+        companyClass = "app-aware-link"
         jobContentClass = "jobs-box__html-content.jobs-description-content__text.t-14.t-normal.jobs-description-content__text--stretch"
         joblist = self.findJobList(className)
         if joblist == None:
@@ -103,9 +103,13 @@ class webcrawling:
                 job.click()
                 # Wait until the element appears
                 titleElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, titleClass)))
+                #print("GetTitle")
                 companyElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, companyClass)))
+                #print("Company Name: ", companyElement.text)
                 parentElement = self.driver.find_element(By.CLASS_NAME, jobContentClass)
+                #print("Get parent element")
                 spanElement = WebDriverWait(parentElement, self.max_wait_time).until(EC.visibility_of_element_located((By.TAG_NAME, "span")))
+                #print("Get job post content")
                 content = self.lowercaseAndRemoveSpace(spanElement.text) 
                 postInfo = {}
                 postInfo["jobTitle"] = titleElement.text  
@@ -118,9 +122,10 @@ class webcrawling:
                 errorCount += 1
                 print("StaleElementReferenceException")
                 pass
-            except TimeoutException:
+            except TimeoutException as te:
                 print("TimeOut try again to get job content")
                 errorCount += 1
+                print(te)
                 pass  
             except Exception as e:
                 print("Uncatched exception occured")
