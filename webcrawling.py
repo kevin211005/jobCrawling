@@ -92,47 +92,48 @@ class webcrawling:
         errorCount = 0 
         className = "ember-view.jobs-search-results__list-item.occludable-update.p0.relative.scaffold-layout__list-item"
         titleClass = "t-24.t-bold.jobs-unified-top-card__job-title"
-        companyClass = "app-aware-link"
+        companyClass = "jobs-unified-top-card__primary-description"
         jobContentClass = "jobs-box__html-content.jobs-description-content__text.t-14.t-normal.jobs-description-content__text--stretch"
         joblist = self.findJobList(className)
         if joblist == None:
             errorCount = 25
-        for job in joblist:
-            try:
-                job.click()
-                job.click()
-                # Wait until the element appears
-                titleElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, titleClass)))
-                #print("GetTitle")
-                companyElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, companyClass)))
-                #print("Company Name: ", companyElement.text)
-                parentElement = self.driver.find_element(By.CLASS_NAME, jobContentClass)
-                #print("Get parent element")
-                spanElement = WebDriverWait(parentElement, self.max_wait_time).until(EC.visibility_of_element_located((By.TAG_NAME, "span")))
-                #print("Get job post content")
-                content = self.lowercaseAndRemoveSpace(spanElement.text) 
-                postInfo = {}
-                postInfo["jobTitle"] = titleElement.text  
-                postInfo["company"] = companyElement.text
-                postInfo["id"] = postInfo["jobTitle"] + " " + postInfo["company"] 
-                postInfo["description"] = content
-                postInfo["url"] = self.driver.current_url
-                jobInfo.append(postInfo)
-            except StaleElementReferenceException:
-                errorCount += 1
-                print("StaleElementReferenceException")
-                pass
-            except TimeoutException as te:
-                print("TimeOut try again to get job content")
-                errorCount += 1
-                print(te)
-                pass  
-            except Exception as e:
-                print("Uncatched exception occured")
-                print(e)
-                errorCount += 1
-                pass  
-        print("error count = ", errorCount)
+        else:
+            for job in joblist:
+                try:
+                    job.click()
+                    job.click()
+                    # Wait until the element appears
+                    titleElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, titleClass)))
+                    #print("GetTitle")
+                    companyElement = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, companyClass)))
+                    #print("Company Name: ", companyElement.text)
+                    parentElement = self.driver.find_element(By.CLASS_NAME, jobContentClass)
+                    #print("Get parent element")
+                    spanElement = WebDriverWait(parentElement, self.max_wait_time).until(EC.visibility_of_element_located((By.TAG_NAME, "span")))
+                    #print("Get job post content")
+                    content = self.lowercaseAndRemoveSpace(spanElement.text) 
+                    postInfo = {}
+                    postInfo["jobTitle"] = titleElement.text  
+                    postInfo["company"] = companyElement.text.split("·")[0]
+                    postInfo["id"] = postInfo["jobTitle"] + " " + postInfo["company"] 
+                    postInfo["description"] = content
+                    postInfo["url"] = self.driver.current_url
+                    jobInfo.append(postInfo)
+                except StaleElementReferenceException:
+                    errorCount += 1
+                    print("StaleElementReferenceException")
+                    pass
+                except TimeoutException as te:
+                    print("TimeOut try again to get job content")
+                    errorCount += 1
+                    print(te)
+                    pass  
+                except Exception as e:
+                    print("Uncatched exception occured")
+                    print(e)
+                    errorCount += 1
+                    pass  
+            print("error count = ", errorCount)
         return errorCount
     def close(self):
         self.driver.close()
