@@ -171,7 +171,7 @@ class webcrawling:
         excludeLevels = {"Senior", "Principal", "Staff", "Lead", "Sr", "III", "Mid-Level", "Mid Level"}
         return not self.contains(content, excludeLevels) 
     def requireCitizenship(self, content):
-        usCitizenSet = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "security clearance", "u.s. citizenship", "secret clearance"}
+        usCitizenSet = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "security clearance", "u.s. citizenship", "secret clearance", "Top Secret"}
         return self.contains(content, usCitizenSet) 
     def findLinesWithKeyword(self, text, keywords):
         lines = text.split('\n')  # Split the text into lines
@@ -191,7 +191,7 @@ class webcrawling:
             ## require certain years of work exp, determine user yoe match 
             return self.filterExp(newString, workYrs) or "zero" in newString
     def filterExp(self, content, workYrs):
-        numbersInContent = [int(num) for num in re.findall(r'\d+', content) if num != "000"]
+        numbersInContent = [int(num) for num in re.findall(r'\d+', content) if num != "000" and num != "00"]
         numbersInContent.sort()
         if len(numbersInContent) > 0:
             ##remove case that number no for years of work experience
