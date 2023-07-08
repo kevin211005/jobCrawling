@@ -23,7 +23,7 @@ if __name__ == "__main__":
     location = os.getenv("JOB_LOCATION")
     try:
         workyoe = int(os.getenv("WORK_YOE"))
-    except Exception as e:
+    except:
         workyoe = None
         print("Manually input search criteria")
     ###login Section 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 except:
                     print("Please input valid years of experience")
         database = databaseHandler(workyoe)
-        SelectedjobList = webCrawling.getJobs(datePosted, jobName, location, workyoe, test = False)
+        SelectedjobList = webCrawling.getJobs(datePosted, jobName, location, workyoe, test = True)
         if SelectedjobList != None:
             database.addNewData(SelectedjobList)
         stop = input("Stop? Enter s to stop, n to start new search else continue with orignal para: ")

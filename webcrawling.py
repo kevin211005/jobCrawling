@@ -17,6 +17,20 @@ import re
 linkedInLogInUrl = "https://www.linkedin.com/uas/login"
 PeriodTable = {"0": "", "1":"&f_TPR=r2592000", "2":"&f_TPR=r604800", "3":"&f_TPR=r86400"}
 JobSearchUrl = "https://www.linkedin.com/jobs/search/?"
+NUMBER_DICT = {
+                "zero": "0",
+                "one": "1",
+                "two": "2",
+                "three": "3",
+                "four": "4",
+                "five": "5",
+                "six": "6",
+                "seven": "7",
+                "eight": "8",
+                "nine": "9"
+                }
+US_CITIZEN = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "security clearance", "u.s. citizenship", "secret clearance", "Top Secret"}
+EXCLUDE_LEVEL = {"Senior", "Principal", "Staff", "Lead", "Sr", "III", "Mid-Level", "Mid Level"}
 class webcrawling:
     def __init__(self, max_wait_time = 5):
         self.driver = webdriver.Chrome()
@@ -77,7 +91,7 @@ class webcrawling:
         df_unique = df.drop_duplicates(subset=['id'])
         data = df_unique.to_dict('records')
         print(f"Find {len(data)} unique jobs")
-        jobSelected, citizenJobs = self.filterData(data, workYrs)
+        jobSelected, citizenJobs = filterData(data, workYrs)
         print(f"find {len(jobSelected)} jobs for you and {len(citizenJobs)} jobs for us citizen only")
         return jobSelected
     def findJobList(self, className):
@@ -111,7 +125,7 @@ class webcrawling:
                     #print("Get parent element")
                     spanElement = WebDriverWait(parentElement, self.max_wait_time).until(EC.visibility_of_element_located((By.TAG_NAME, "span")))
                     #print("Get job post content")
-                    content = self.lowercaseAndRemoveSpace(spanElement.text) 
+                    content = lowercaseAndRemoveSpace(spanElement.text) 
                     postInfo = {}
                     postInfo["jobTitle"] = titleElement.text  
                     postInfo["company"] = companyElement.text.split("·")[0]
@@ -146,65 +160,65 @@ class webcrawling:
             print("Get Page error Retry start")
             errorCount = self.loadContent(jobInfo)
         return jobInfo
-    #%% data postprocess 
-    def filterData(self, jobList, workYrs):
-        jobSelected = []
-        jobRequiredCitizenship = []
-        for job in jobList:
-            content = job["description"]
-            if not self.isForEntryLevel(job["jobTitle"]):
-                continue 
-            if self.requireCitizenship(content) == True:
-                jobRequiredCitizenship.append(job)
-            else:
-                if self.isFit(content, workYrs) == True:
-                    job["date"] = str(date.today())
-                    jobSelected.append(job)
-        return jobSelected, jobRequiredCitizenship
-    # lowercase and remove empty cols of string 
-    def lowercaseAndRemoveSpace(self, content):
-        lines = content.split('\n')
-        non_empty_lines = [line for line in lines if line.strip()] 
-        newContent = '\n'.join(non_empty_lines).lower()
-        return newContent
-    def isForEntryLevel(self, content):
-        excludeLevels = {"Senior", "Principal", "Staff", "Lead", "Sr", "III", "Mid-Level", "Mid Level"}
-        return not self.contains(content, excludeLevels) 
-    def requireCitizenship(self, content):
-        usCitizenSet = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "security clearance", "u.s. citizenship", "secret clearance", "Top Secret"}
-        return self.contains(content, usCitizenSet) 
-    def findLinesWithKeyword(self, text, keywords):
-        lines = text.split('\n')  # Split the text into lines
-        linesWithKeyword = []
-        for line in lines:
-            if self.contains(line, keywords):
-                linesWithKeyword.append(line)
-        return "\n".join(linesWithKeyword)
-    def isFit(self, content, workYrs):
-        keywords = {"years", "yrs", "year"}
-        ## extract string with keywords to determine matchness 
-        newString = self.findLinesWithKeyword(content, keywords)
-        ## no work experience required
-        if newString == "":
+#%% data postprocess 
+def filterData(jobList, workYrs):
+    jobSelected = []
+    jobRequiredCitizenship = []
+    for job in jobList:
+        content = job["description"]
+        if not isForEntryLevel(job["jobTitle"]):
+            continue 
+        if requireCitizenship(content) == True:
+            jobRequiredCitizenship.append(job)
+        else:
+            if isFit(content, workYrs) == True:
+                job["date"] = str(date.today())
+                jobSelected.append(job)
+    return jobSelected, jobRequiredCitizenship
+# lowercase and remove empty cols of string 
+def lowercaseAndRemoveSpace(content):
+    lines = content.split('\n')
+    non_empty_lines = [line for line in lines if line.strip()] 
+    newContent = '\n'.join(non_empty_lines).lower()
+    return newContent
+def isForEntryLevel(content):
+    return not contains(content, EXCLUDE_LEVEL) 
+def requireCitizenship(content):
+    return contains(content, US_CITIZEN) 
+def findLinesWithKeyword(text, keywords):
+    lines = text.split('\n')  # Split the text into lines
+    linesWithKeyword = []
+    for line in lines:
+        if contains(line, keywords):
+            linesWithKeyword.append(line)
+    return "\n".join(linesWithKeyword)
+def isFit(content, workYrs):
+    keywords = {"years", "yrs", "year"}
+    ## extract string with keywords to determine matchness 
+    newString = findLinesWithKeyword(content, keywords)
+    ## no work experience required
+    if newString == "":
+        return True 
+    else:
+        ##determine if user yoe match 
+        return filterExp(newString, workYrs) 
+def filterExp(content, workYrs):
+    ##change english number to digit number
+    pattern = re.compile(r'\b(' + '|'.join(NUMBER_DICT.keys()) + r')\b')
+    content = pattern.sub(lambda x: NUMBER_DICT[x.group()], content)
+    numbersInContent = [int(num) for num in re.findall(r'\d+', content) if num != "000" and num != "00"]
+    numbersInContent.sort()
+    if len(numbersInContent) > 0:
+        ##remove case that number not for years of work experience
+        if numbersInContent[0] >= 15:
             return True 
-        else:
-            ## require certain years of work exp, determine user yoe match 
-            return self.filterExp(newString, workYrs) or "zero" in newString
-    def filterExp(self, content, workYrs):
-        numbersInContent = [int(num) for num in re.findall(r'\d+', content) if num != "000" and num != "00"]
-        numbersInContent.sort()
-        if len(numbersInContent) > 0:
-            ##remove case that number no for years of work experience
-            if numbersInContent[0] >= 15:
-                return True 
-            return numbersInContent[0] <= workYrs
-        else:
-            return True  
-    def contains(self, content, keywords):
-        for keyword in keywords:
-            if keyword in content:
-                return True 
-        return False     
+        return numbersInContent[0] <= workYrs
+    return True  
+def contains(content, keywords):
+    for keyword in keywords:
+        if keyword in content:
+            return True 
+    return False     
 
 
 
