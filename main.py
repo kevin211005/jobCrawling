@@ -32,12 +32,15 @@ if __name__ == "__main__":
             userName = input("Enter your LinkedIn userName: ")
             password = getpass.getpass("Enter your LinkedIn password: ", stream=None)
         webCrawling.logIn(userName, password)
-        successString = input("Login success? Enter y or n to continue: ")      
-        if successString.lower()[0] == "y":
-            success = True
+        if webCrawling.checkLoginSuccess() == False:
+            successString = input("Login success? Enter y or n to continue: ")      
+            if successString.lower()[0] == "y":
+                success = True
+            else:
+                userName = None
+                password = None
         else:
-            userName = None
-            password = None
+            success = True
     ###search section
     while quite == False:
         if jobName == None:
@@ -62,7 +65,7 @@ if __name__ == "__main__":
                 except:
                     print("Please input valid years of experience")
         database = databaseHandler(workyoe)
-        SelectedjobList = webCrawling.getJobs(datePosted, jobName, location, workyoe, test = True)
+        SelectedjobList = webCrawling.getJobs(datePosted, jobName, location, workyoe, test = False)
         if SelectedjobList != None:
             database.addNewData(SelectedjobList)
         stop = input("Stop? Enter s to stop, n to start new search else continue with orignal para: ")

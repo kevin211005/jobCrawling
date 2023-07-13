@@ -17,6 +17,7 @@ import re
 linkedInLogInUrl = "https://www.linkedin.com/uas/login"
 PeriodTable = {"0": "", "1":"&f_TPR=r2592000", "2":"&f_TPR=r604800", "3":"&f_TPR=r86400"}
 JobSearchUrl = "https://www.linkedin.com/jobs/search/?"
+LINKEDIN_LOGIN_SUCCESS_URL = "https://www.linkedin.com/feed/"
 NUMBER_DICT = {
                 "zero": "0",
                 "one": "1",
@@ -29,7 +30,7 @@ NUMBER_DICT = {
                 "eight": "8",
                 "nine": "9"
                 }
-US_CITIZEN = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "security clearance", "u.s. citizenship", "secret clearance", "Top Secret"}
+US_CITIZEN = {"u.s. citizen", "green card", "u.s person", "u.s. person", "us citizen", "permanent resident", "u.s. citizenship", "Top Secret", "clearance"}
 EXCLUDE_LEVEL = {"Senior", "Principal", "Staff", "Lead", "Sr", "III", "Mid-Level", "Mid Level"}
 class webcrawling:
     def __init__(self, max_wait_time = 5):
@@ -106,7 +107,7 @@ class webcrawling:
         errorCount = 0 
         className = "ember-view.jobs-search-results__list-item.occludable-update.p0.relative.scaffold-layout__list-item"
         titleClass = "t-24.t-bold.jobs-unified-top-card__job-title"
-        companyClass = "jobs-unified-top-card__primary-description"
+        companyClass = "ember-view.t-black.t-normal"
         jobContentClass = "jobs-box__html-content.jobs-description-content__text.t-14.t-normal.jobs-description-content__text--stretch"
         joblist = self.findJobList(className)
         if joblist == None:
@@ -128,7 +129,7 @@ class webcrawling:
                     content = lowercaseAndRemoveSpace(spanElement.text) 
                     postInfo = {}
                     postInfo["jobTitle"] = titleElement.text  
-                    postInfo["company"] = companyElement.text.split("·")[0]
+                    postInfo["company"] = companyElement.text
                     postInfo["id"] = postInfo["jobTitle"] + " " + postInfo["company"] 
                     postInfo["description"] = content
                     postInfo["url"] = self.driver.current_url
@@ -160,6 +161,8 @@ class webcrawling:
             print("Get Page error Retry start")
             errorCount = self.loadContent(jobInfo)
         return jobInfo
+    def checkLoginSuccess(self):
+        return self.driver.current_url == LINKEDIN_LOGIN_SUCCESS_URL
 #%% data postprocess 
 def filterData(jobList, workYrs):
     jobSelected = []
